@@ -1,0 +1,11 @@
+<h2>{{ title }}</h2>
+<form>
+    {{ form.hidden_tag() }}
+    {% for field in form if field.widget.input_type != 'hidden' %}
+    <div class="form-floating mb-3">
+        {{ field(class_="form-control", **{'placeholder': field.name }) }}
+        {{ field.label(class_="form-label") }}
+    </div>
+    {% endfor %}
+    <button class="btn btn-primary">Submit</button>
+</form>

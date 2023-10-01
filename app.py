@@ -1,6 +1,7 @@
 from flask import Flask, render_template, redirect
 from flask_debugtoolbar import DebugToolbarExtension
 from models import db, connect_db
+from forms import RegisterForm, LoginForm
 
 app = Flask(__name__)
 
@@ -18,13 +19,14 @@ toolbar = DebugToolbarExtension(app)
 @app.route('/')
 def get_root():
     """ Redirect to /register. """
-    return redirect('/')
+    return redirect('/register')
 
 
 @app.route('/register')
 def get_register():
     """ Get registration form. """
-    return render_template('register.html')
+    form = RegisterForm()
+    return render_template('register.html', form=form)
 
 
 @app.route('/register', methods=['POST'])
@@ -36,7 +38,8 @@ def post_register():
 @app.route('/login')
 def get_login():
     """ Get login form. """
-    return render_template('login.html')
+    form = LoginForm()
+    return render_template('login.html', form=form)
 
 
 @app.route('/login', methods=['POST'])
