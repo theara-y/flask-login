@@ -1,0 +1,5 @@
+{% for category, message in flashed_messages %}
+<div class="alert alert-{{category}}" role="alert">
+    {{message}}
+</div>
+{% endfor %}

@@ -1,7 +1,9 @@
-from flask import Flask, render_template, redirect
+from flask import Flask, render_template, redirect, flash, session
 from flask_debugtoolbar import DebugToolbarExtension
-from models import db, connect_db
+from sqlalchemy.exc import IntegrityError
+from models import db, connect_db, User
 from forms import RegisterForm, LoginForm
+from errors import AuthError
 
 app = Flask(__name__)
 
@@ -22,33 +24,40 @@ def get_root():
     return redirect('/register')
 
 
-@app.route('/register')
-def get_register():
-    """ Get registration form. """
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    """ Get registration form or handle registration and redirect to /secret on success. """
     form = RegisterForm()
+    if form.validate_on_submit():
+        try:
+            user = User.register(form)
+            session['username'] = user.username
+            return redirect('/secret')
+        except IntegrityError:
+            form.username.errors = ['Username taken!']
+
     return render_template('register.html', form=form)
 
 
-@app.route('/register', methods=['POST'])
-def post_register():
-    """ Process registration and redirect to /secret on success. """
-    return redirect('/')
-
-
-@app.route('/login')
-def get_login():
-    """ Get login form. """
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    """ Get login form or handle login and redirect to /secret on success. """
     form = LoginForm()
+    if form.validate_on_submit():
+        try:
+            user = User.login(form)
+            session['username'] = user.username
+            return redirect('/secret')
+        except AuthError as error:
+            flash(error.message, 'danger')
+            return redirect('/login')
+
     return render_template('login.html', form=form)
-
-
-@app.route('/login', methods=['POST'])
-def post_login():
-    """ Process login and redirect to /secret on success. """
-    return redirect('/')
 
 
 @app.route('/secret')
 def get_secret():
     """ Allows only authenticated users. """
-    return render_template('secret.html')
+    if session.get('username'):
+        return "Hello secret."
+    return redirect('/')

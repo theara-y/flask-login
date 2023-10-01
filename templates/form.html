@@ -1,10 +1,13 @@
-<h2>{{ title }}</h2>
-<form>
+<h2>{{ form_header }}</h2>
+<form action="{{form_action}}" method="POST">
     {{ form.hidden_tag() }}
     {% for field in form if field.widget.input_type != 'hidden' %}
     <div class="form-floating mb-3">
         {{ field(class_="form-control", **{'placeholder': field.name }) }}
         {{ field.label(class_="form-label") }}
+        {% for error in field.errors %}
+        <small class="form-text text-danger">{{error}}</small>
+        {% endfor %}
     </div>
     {% endfor %}
     <button class="btn btn-primary">Submit</button>

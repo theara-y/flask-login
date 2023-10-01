@@ -1,7 +1,15 @@
 {% extends 'base.html' %}
+
 {% block title %}Login{% endblock %}
+
 {% block content %}
-{% with form=form, title='Login' %}
+
+{% with flashed_messages=get_flashed_messages(with_categories=true) %}
+{% include 'alert.html' %}
+{% endwith %}
+
+{% with form=form, form_header='Login', form_action='/login' %}
 {% include 'form.html' %}
 {% endwith %}
+
 {% endblock %}

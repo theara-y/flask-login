@@ -1,7 +1,14 @@
 {% extends 'base.html' %}
+
 {% block title %}Register{% endblock %}
+
 {% block content %}
-{% with form=form, title='Register' %}
+{% for category, message in get_flashed_messages(with_categories=true) %}
+<div class="alert alert-{{category}}" role="alert">
+    {{message}}
+</div>
+{% endfor %}
+{% with form=form, form_header='Register', form_action='/register' %}
 {% include 'form.html' %}
 {% endwith %}
 {% endblock %}
