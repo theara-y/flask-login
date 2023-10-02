@@ -26,13 +26,15 @@ def get_root():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    """ Get registration form or handle registration and redirect to /secret on success. """
+    """ Get registration form or handle registration and redirect to /users on success. """
+    if session.get('username'):
+        return redirect(f'/users/{session["username"]}')
     form = RegisterForm()
     if form.validate_on_submit():
         try:
             user = User.register(form)
             session['username'] = user.username
-            return redirect('/secret')
+            return redirect(f'/users/{user.username}')
         except IntegrityError:
             form.username.errors = ['Username taken!']
 
@@ -41,13 +43,15 @@ def register():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    """ Get login form or handle login and redirect to /secret on success. """
+    """ Get login form or handle login and redirect to /users on success. """
+    if session.get('username'):
+        return redirect(f'/users/{session["username"]}')
     form = LoginForm()
     if form.validate_on_submit():
         try:
             user = User.login(form)
             session['username'] = user.username
-            return redirect('/secret')
+            return redirect(f'/users/{user.username}')
         except AuthError as error:
             flash(error.message, 'danger')
             return redirect('/login')
@@ -55,11 +59,12 @@ def login():
     return render_template('login.html', form=form)
 
 
-@app.route('/secret')
-def get_secret():
+@app.route('/users/<username>')
+def get_user(username):
     """ Allows only authenticated users. """
-    if session.get('username'):
-        return render_template('secret.html')
+    if session.get('username') and session.get('username') == username:
+        user = User.query.get(username)
+        return render_template('user.html', user=user)
     flash('Request not authorized. Please login.', 'danger')
     return redirect('/')
 
