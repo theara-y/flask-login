@@ -2,13 +2,41 @@
 
 {% block title %}Register{% endblock %}
 
+{% block background %}
+<style>
+    body {
+        background-image: linear-gradient(rgba(255, 123, 0, 0.5), rgba(0, 255, 170, 0.5)),
+            url('https://images.pexels.com/photos/255379/pexels-photo-255379.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2');
+        background-repeat: no-repeat;
+        background-size: cover;
+    }
+
+    #register-form {
+        opacity: 0.85;
+    }
+
+    h1 {
+        color: rgba(255, 123, 0, 0.5);
+    }
+
+    button {
+        background: linear-gradient(rgba(255, 123, 0, 0.5), rgba(0, 255, 170, 0.5));
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-{% for category, message in get_flashed_messages(with_categories=true) %}
-<div class="alert alert-{{category}}" role="alert">
-    {{message}}
+<div class="container-fluid vh-100 vw-100 m-0 p-0">
+    <div class="row m-0 p-0 text-center">
+        <div id="register-form" class="col-4 offset-8 vh-100 bg-light p-4">
+            <h1 class="display-5">Register</h1>
+            {% with form=form, form_action='/register' %}
+            {% include 'form.html' %}
+            {% endwith %}
+
+            <p class="mt-5">Already have an account? <a href="/login">Login here</a></p>
+        </div>
+    </div>
 </div>
-{% endfor %}
-{% with form=form, form_header='Register', form_action='/register' %}
-{% include 'form.html' %}
-{% endwith %}
+
 {% endblock %}

@@ -1,4 +1,3 @@
-<h2>{{ form_header }}</h2>
 <form action="{{form_action}}" method="POST">
     {{ form.hidden_tag() }}
     {% for field in form if field.widget.input_type != 'hidden' %}
