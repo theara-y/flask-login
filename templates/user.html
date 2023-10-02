@@ -1,8 +1,79 @@
-<form action='/logout'>
-    <button class="btn btn-primary">Logout</button>
-</form>
+{% extends 'base.html' %}
 
-{{user.username}}
-{{user.email}}
-{{user.first_name}}
-{{user.last_name}}
+{% block title %}Login{% endblock %}
+
+{% block style %}
+<style>
+    html {
+        min-height: 100%;
+    }
+
+    body {
+        background-image: linear-gradient(rgba(0, 64, 255, 0.5), rgba(255, 0, 251, 0.5)),
+            url('https://images.pexels.com/photos/255379/pexels-photo-255379.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2');
+        background-repeat: no-repeat;
+        background-size: cover;
+        height: 100%;
+        color: white;
+    }
+
+    .mb-1.list-group-item.list-group-item-action {
+        background: #212529;
+        border-bottom: 1px solid white;
+        color: white;
+    }
+
+    .mb-1.list-group-item.list-group-item-action:hover {
+        color: black;
+        background: white;
+        transition: all 0.5s;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+{% with flashed_messages=get_flashed_messages(with_categories=true) %}
+{% include 'alert.html' %}
+{% endwith %}
+
+<nav class="navbar navbar-light bg-dark">
+    <div class="container-fluid justify-content-end">
+        <span class="mx-1">Welcome {{user.username}}!</span>
+        <form class="mx-1" action='/logout'>
+            <button class="btn btn-outline-warning">Logout</button>
+        </form>
+    </div>
+</nav>
+
+
+<div class="container mt-5 bg-dark p-3 rounded">
+    <div class="row justify-content-between">
+        <div class="col-auto auto-me"><b>{{user.first_name}} {{user.last_name}}</b></div>
+        <div class="col-auto">
+            <form class="mx-1" action='/users/{{user.username}}/delete' method="POST">
+                <button class="btn btn-outline-danger">Delete User</button>
+            </form>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-12 display-6"><i>{{user.email}}</i></div>
+    </div>
+    <div class="row mx-1">
+        <a class="col-auto btn btn-primary" href="/users/{{user.username}}/feedback/add" class="btn btn-primary">Add
+            Feedback</a>
+    </div>
+
+    <div class="my-3 border border-primary"></div>
+
+    <div class="list-group">
+        <h2 class="display-6">User Feedbacks</h2>
+        {% if not feedbacks %}
+        <p>User has no feedbacks.</p>
+        {% endif %}
+        {% for feedback in feedbacks %}
+        <a class="mb-1 list-group-item list-group-item-action"
+            href="/feedback/{{feedback.id}}/update">{{feedback.title}}</a>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

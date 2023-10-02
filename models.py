@@ -1,7 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError
 from flask_bcrypt import Bcrypt
-from forms import RegisterForm, LoginForm
+from forms import RegisterForm, LoginForm, FeedbackForm
 from errors import AuthError
 
 db = SQLAlchemy()
@@ -20,6 +20,7 @@ class User(db.Model):
     email = db.Column(db.String(50), nullable=False)
     first_name = db.Column(db.String(3), nullable=False)
     last_name = db.Column(db.String(3), nullable=False)
+    feedbacks = db.relationship('Feedback', cascade='all,delete,delete-orphan')
 
     def __repr__(self):
         return f'<User username={self.username}>'
@@ -41,6 +42,7 @@ class User(db.Model):
 
     @classmethod
     def login(cls, form: LoginForm):
+        """ Throws AuthError on bad login. """
         user = User.query.get(form.username.data)
         if user:
             if bcrypt.check_password_hash(user.password, form.password.data):
@@ -55,6 +57,32 @@ class Feedback(db.Model):
     title = db.Column(db.String(100), nullable=False)
     content = db.Column(db.Text, nullable=False)
     username = db.Column(db.String(20), db.ForeignKey('users.username'))
+    user = db.relationship('User')
 
     def __repr__(self):
         return f'<Feedback username={self.username} title={self.title}>'
+
+    @classmethod
+    def submit(cls, username, form: FeedbackForm):
+        """ Submits feedback. """
+        feedback = cls(
+            title=form.title.data,
+            content=form.content.data,
+            username=username
+        )
+        db.session.add(feedback)
+        db.session.commit()
+
+    @classmethod
+    def update(cls, feedback, form: FeedbackForm):
+        """ Updates feedback. """
+        feedback.title = form.title.data
+        feedback.content = form.content.data
+        db.session.commit()
+
+    @classmethod
+    def delete(cls, id):
+        """ Deletes feedback. """
+        feedback = Feedback.query.get(id)
+        db.session.delete(feedback)
+        db.session.commit()

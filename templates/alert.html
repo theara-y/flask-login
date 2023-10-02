@@ -1,5 +1,7 @@
 {% for category, message in flashed_messages %}
-<div class="position-absolute vw-100 text-center alert alert-{{category}}" role="alert">
+<div style="z-index: 1;"
+    class="position-absolute vw-100 text-center alert alert-{{category}} alert-dismissible fade show" role="alert">
     {{message}}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>
 {% endfor %}

@@ -1,8 +1,8 @@
 from flask import Flask, render_template, redirect, flash, session
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
-from models import db, connect_db, User
-from forms import RegisterForm, LoginForm
+from models import db, connect_db, User, Feedback
+from forms import RegisterForm, LoginForm, FeedbackForm
 from errors import AuthError
 
 app = Flask(__name__)
@@ -51,6 +51,7 @@ def login():
         try:
             user = User.login(form)
             session['username'] = user.username
+            flash(f'Welcome {user.first_name} {user.last_name}!', 'success')
             return redirect(f'/users/{user.username}')
         except AuthError as error:
             flash(error.message, 'danger')
@@ -61,17 +62,20 @@ def login():
 
 @app.route('/logout')
 def logout():
+    """ Logout user. """
     if session.get('username'):
         session.pop('username')
+        flash('You have been logged out!', 'success')
     return redirect('/login')
 
 
 @app.route('/users/<username>')
 def get_user(username):
-    """ Allows only authenticated users. """
-    if session.get('username') and session.get('username') == username:
+    """ Allow only authenticated users to see their page. """
+    session_username = session.get('username')
+    if session_username and session_username == username:
         user = User.query.get(username)
-        return render_template('user.html', user=user)
+        return render_template('user.html', user=user, feedbacks=user.feedbacks)
     flash('Request not authorized. Please login.', 'danger')
     return redirect('/')
 
@@ -83,56 +87,54 @@ def delete_user(username):
         user = User.query.get(username)
         db.session.delete(user)
         db.session.commit()
-        return redirect('/')
-    flash('Request not authorized. Please login.', 'danger')
+        session.pop('username')
+        flash('You have been logged out!', 'success')
+    else:
+        flash('Request not authorized. Please login.', 'danger')
     return redirect('/')
 
 
-@app.route('/users/<username>/feedback/add')
-def add_feedback_form(username):
+@app.route('/users/<username>/feedback/add', methods=['GET', 'POST'])
+def add_feedback(username):
     """"""
-    if session.get('username') and session.get('username') == username:
-        user = User.query.get(username)
-        return render_template('user.html', user=user)
+    session_username = session.get('username')
+    if session_username and session_username == username:
+        form = FeedbackForm()
+        if form.validate_on_submit():
+            Feedback.submit(username, form)
+            flash('Feedback submitted!', 'success')
+            return redirect('/')
+        return render_template('feedback.html', form=form, form_action=f'/users/{username}/feedback/add')
     flash('Request not authorized. Please login.', 'danger')
     return redirect('/')
 
 
-@app.route('/users/<username>/feedback/add', methods=['POST'])
-def handle_add_feedback(username):
-    """"""
-    if session.get('username') and session.get('username') == username:
-        user = User.query.get(username)
-        return render_template('user.html', user=user)
-    flash('Request not authorized. Please login.', 'danger')
-    return redirect('/')
-
-
-@app.route('/feedback/<int:id>/update')
-def update_feedback_form(id):
-    """"""
-    if session.get('username') and session.get('username') == username:
-        user = User.query.get(username)
-        return render_template('user.html', user=user)
-    flash('Request not authorized. Please login.', 'danger')
-    return redirect('/')
-
-
-@app.route('/feedback/<int:id>/update', methods=['POST'])
+@app.route('/feedback/<int:id>/update', methods=['GET', 'POST'])
 def handle_update_feedback(id):
     """"""
-    if session.get('username') and session.get('username') == username:
-        user = User.query.get(username)
-        return render_template('user.html', user=user)
-    flash('Request not authorized. Please login.', 'danger')
+    feedback = Feedback.query.get(id)
+    if feedback:
+        session_username = session.get('username')
+        if session_username and session_username == feedback.username:
+            form = FeedbackForm(obj=feedback)
+            if form.validate_on_submit():
+                Feedback.update(feedback, form)
+                flash('Feedback updated!', 'success')
+                return redirect('/')
+            return render_template('feedback.html', form=form, id=id, form_action=f'/feedback/{id}/update')
+        flash('Request not authorized. Please login.', 'danger')
     return redirect('/')
 
 
 @app.route('/feedback/<int:id>/delete', methods=['POST'])
 def delete_feedback(id):
     """"""
-    if session.get('username') and session.get('username') == username:
-        user = User.query.get(username)
-        return render_template('user.html', user=user)
-    flash('Request not authorized. Please login.', 'danger')
+    feedback = Feedback.query.get(id)
+    if feedback:
+        session_username = session.get('username')
+        if session_username and session_username == feedback.username:
+            Feedback.delete(id)
+            flash('Feedback deleted.', 'success')
+            return redirect('/')
+        flash('Request not authorized. Please login.', 'danger')
     return redirect('/')

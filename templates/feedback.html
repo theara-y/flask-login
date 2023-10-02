@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}Feedback{% endblock %}
+
+{% block style %}
+<style>
+    body {
+        background-image: linear-gradient(rgba(0, 64, 255, 0.5), rgba(255, 0, 251, 0.5)),
+            url('https://images.pexels.com/photos/255379/pexels-photo-255379.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2');
+        background-repeat: no-repeat;
+        background-size: cover;
+    }
+
+    #login-form {
+        opacity: 0.85;
+    }
+
+    h1 {
+        color: rgba(0, 64, 255, 0.5);
+    }
+
+    button {
+        background: linear-gradient(rgba(0, 64, 255, 0.5), rgba(255, 0, 251, 0.5));
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+{% with flashed_messages=get_flashed_messages(with_categories=true) %}
+{% include 'alert.html' %}
+{% endwith %}
+
+<div class="container-fluid vh-100 vw-100 m-0 p-0">
+    <div class="row m-0 p-0 text-center">
+        <div class="col-4 vh-100"></div>
+        <div id="feedback-form" class="col bg-light p-4 align-self-center rounded">
+            <h1 class="display-5">Feedback</h1>
+            {% with form=form, form_action=form_action %}
+            {% include 'form.html' %}
+            {% endwith %}
+
+            <div class="row justify-content-center mt-3">
+                <a class="col-auto btn btn-primary" href="/">Cancel</a>
+                {% if id %}
+                <form class="col-auto" action="/feedback/{{id}}/delete" method="POST">
+                    <button class="btn btn-danger">Delete</button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-4"></div>
+    </div>
+</div>
+{% endblock %}
