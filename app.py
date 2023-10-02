@@ -15,13 +15,13 @@ app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 
 connect_db(app)
 
-# toolbar = DebugToolbarExtension(app)
+toolbar = DebugToolbarExtension(app)
 
 
 @app.route('/')
 def get_root():
-    """ Redirect to /register. """
-    return redirect('/register')
+    """ Redirect to /login. """
+    return redirect('/login')
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -59,5 +59,13 @@ def login():
 def get_secret():
     """ Allows only authenticated users. """
     if session.get('username'):
-        return "Hello secret."
+        return render_template('secret.html')
+    flash('Request not authorized. Please login.', 'danger')
     return redirect('/')
+
+
+@app.route('/logout')
+def logout():
+    if session.get('username'):
+        session.pop('username')
+    return redirect('/login')
