@@ -47,3 +47,14 @@ class User(db.Model):
                 return user
         raise AuthError(
             'The username and/or password you have entered is incorrect.')
+
+
+class Feedback(db.Model):
+    __tablename__ = 'feedbacks'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    title = db.Column(db.String(100), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    username = db.Column(db.String(20), db.ForeignKey('users.username'))
+
+    def __repr__(self):
+        return f'<Feedback username={self.username} title={self.title}>'
