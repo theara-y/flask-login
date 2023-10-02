@@ -59,6 +59,13 @@ def login():
     return render_template('login.html', form=form)
 
 
+@app.route('/logout')
+def logout():
+    if session.get('username'):
+        session.pop('username')
+    return redirect('/login')
+
+
 @app.route('/users/<username>')
 def get_user(username):
     """ Allows only authenticated users. """
@@ -69,8 +76,63 @@ def get_user(username):
     return redirect('/')
 
 
-@app.route('/logout')
-def logout():
-    if session.get('username'):
-        session.pop('username')
-    return redirect('/login')
+@app.route('/users/<username>/delete', methods=['POST'])
+def delete_user(username):
+    """"""
+    if session.get('username') and session.get('username') == username:
+        user = User.query.get(username)
+        db.session.delete(user)
+        db.session.commit()
+        return redirect('/')
+    flash('Request not authorized. Please login.', 'danger')
+    return redirect('/')
+
+
+@app.route('/users/<username>/feedback/add')
+def add_feedback_form(username):
+    """"""
+    if session.get('username') and session.get('username') == username:
+        user = User.query.get(username)
+        return render_template('user.html', user=user)
+    flash('Request not authorized. Please login.', 'danger')
+    return redirect('/')
+
+
+@app.route('/users/<username>/feedback/add', methods=['POST'])
+def handle_add_feedback(username):
+    """"""
+    if session.get('username') and session.get('username') == username:
+        user = User.query.get(username)
+        return render_template('user.html', user=user)
+    flash('Request not authorized. Please login.', 'danger')
+    return redirect('/')
+
+
+@app.route('/feedback/<int:id>/update')
+def update_feedback_form(id):
+    """"""
+    if session.get('username') and session.get('username') == username:
+        user = User.query.get(username)
+        return render_template('user.html', user=user)
+    flash('Request not authorized. Please login.', 'danger')
+    return redirect('/')
+
+
+@app.route('/feedback/<int:id>/update', methods=['POST'])
+def handle_update_feedback(id):
+    """"""
+    if session.get('username') and session.get('username') == username:
+        user = User.query.get(username)
+        return render_template('user.html', user=user)
+    flash('Request not authorized. Please login.', 'danger')
+    return redirect('/')
+
+
+@app.route('/feedback/<int:id>/delete', methods=['POST'])
+def delete_feedback(id):
+    """"""
+    if session.get('username') and session.get('username') == username:
+        user = User.query.get(username)
+        return render_template('user.html', user=user)
+    flash('Request not authorized. Please login.', 'danger')
+    return redirect('/')
